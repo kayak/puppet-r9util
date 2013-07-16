@@ -35,7 +35,7 @@ module Puppet::Parser::Functions
     # passed as declared. We want this function to yield consistent
     # results when invoked from either language, so we convert all
     # hash keys to strings before looking up values.
-    debug "Converting all keys in data to strings..."
+    debug "distro_lookup: Converting all keys in data to strings..."
 
     fix = Proc.new do |data|
       next data unless data.kind_of? Hash
