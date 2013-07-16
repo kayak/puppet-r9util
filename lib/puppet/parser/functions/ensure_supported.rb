@@ -53,7 +53,8 @@ module Puppet::Parser::Functions
       end
 
     unless is_supported
-      message = "OS #{os} version #{osver} is not supported by this manifest"
+      message = "Version #{osver.inspect} of operating system " << 
+        "#{os.inspect} is not supported by this manifest"
       if warn
         warn message
       else
