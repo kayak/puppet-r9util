@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe 'the check_supported function' do
+describe 'the ensure_supported function' do
   let(:scope) { PuppetlabsSpec::PuppetInternals.scope }
   let(:test_data) { 
     YAML.load <<TESTDATA
@@ -14,7 +14,7 @@ TESTDATA
   }
 
   def expect_result(value,data)
-    scope.function_check_supported([data]).should == value
+    scope.function_ensure_supported([data]).should == value
   end
 
   def mock_facts(os,version)
@@ -23,11 +23,11 @@ TESTDATA
   end
 
   def expect_parse_error(arglist,regex)
-    lambda { scope.function_check_supported(arglist) }.should(raise_error(Puppet::ParseError,regex))
+    lambda { scope.function_ensure_supported(arglist) }.should(raise_error(Puppet::ParseError,regex))
   end
 
   it 'should raise an error if given the wrong number of arguments' do
-    re = /check_supported.*expects one or two arg/
+    re = /ensure_supported.*expects one or two arg/
     expect_parse_error([],re)
     expect_parse_error(['a','b','c'],re)
   end
@@ -38,14 +38,14 @@ TESTDATA
       'CentOS','5.4',
       'Darwin','10.1']].each do |os,version|
       mock_facts(os,version)
-      expect_result(true,test_data)
+      expect_result(nil,test_data)
     end
   end
 
   it 'should warn and return false if OS not supported and warn is true' do
     mock_facts('FakeOS','0')
     scope.expects(:warn).with { |m| m =~ /not supported/ }
-    scope.function_check_supported([test_data,true]).should == false
+    scope.function_ensure_supported([test_data,true])
   end
 
   it 'should raise an error if the OS is not supported' do

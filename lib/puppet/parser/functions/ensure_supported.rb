@@ -1,4 +1,4 @@
-# check_supported - easy way to specify the set of OSes (and versions) that
+# ensure_supported - easy way to specify the set of OSes (and versions) that
 #   are supported by your module. Can either fail or warn if the node
 #   is not supported.
 #
@@ -10,19 +10,19 @@
 # }
 #
 # CentOS 6 node:
-# check_supported($supported) => true
+# ensure_supported($supported) => true
 #
 # CentOS 4.3 node:
-# check_supported($supported) => Error: "operating system CentOS
+# ensure_supported($supported) => Error: "operating system CentOS
 #             version 4.3 is not supported by this manifest"
 # 
 # CentOS 4.3 node with  -- warn instead of raising an error.
-# check_supported($supported,true) => false
+# ensure_supported($supported,true) => false
 #
 module Puppet::Parser::Functions
-  newfunction(:check_supported, :type => :rvalue) do |args|
+  newfunction(:ensure_supported, :type => :statement) do |args|
     unless [1,2].include? args.size
-      raise Puppet::ParseError.new 'The check_supported function ' <<
+      raise Puppet::ParseError.new 'The ensure_supported function ' <<
         'expects one or two arguments'
     end
     oslist,warn = args
@@ -32,7 +32,7 @@ module Puppet::Parser::Functions
 
     osmaj,osmin = osver.to_s.split('.')
 
-    supported = 
+    is_supported =
       case oslist
       when String
         os == oslist
@@ -52,7 +52,7 @@ module Puppet::Parser::Functions
                                      "be a string, array or hash!")
       end
 
-    unless supported
+    unless is_supported
       message = "OS #{os} version #{osver} is not supported by this manifest"
       if warn
         warn message
@@ -61,6 +61,5 @@ module Puppet::Parser::Functions
       end
     end
 
-    supported
   end
 end
