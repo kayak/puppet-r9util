@@ -7,6 +7,6 @@ require 'facter'
 Facter.add('r9util_download_curl_version') do
   setcode do
     output = `curl --version 2>/dev/null`
-    $?.success? ? output.split[1] : nil
+    [0,2].include? $?.exitstatus ? output.split[1] : nil
   end
 end
