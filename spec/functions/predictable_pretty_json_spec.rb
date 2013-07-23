@@ -11,9 +11,9 @@ describe 'the predictable_pretty_json function' do
     scope.function_predictable_pretty_json([data]).should == string
   end
 
-  it 'should raise a ParseError if the number of args != 1' do
+  it 'should raise a ParseError if the number of args is not 1 or 2' do
     expect_parse_error([])
-    expect_parse_error(['',''])
+    expect_parse_error(['','',''])
   end
 
   it 'should raise a ParseError if any hashes in supplied data structure do not have strings as keys' do

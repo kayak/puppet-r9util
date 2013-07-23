@@ -15,31 +15,71 @@ require 'json'
 #
 module Puppet::Parser::Functions
   newfunction(:predictable_pretty_json,:type => :rvalue) do |args|
-    if args.size != 1
-      raise Puppet::ParseError.new('predictable_pretty_json expects a single argument')
+    unless [1,2].include?(args.size)
+      raise Puppet::ParseError.new('predictable_pretty_json expects 1-2 args')
     end
 
-    data = args.first
+    data = args[0]
+    coerce = (args[1].to_s == 'true')
 
+    utils_class = Class.new do
+
+      # Convert strings that look like booleans, null, or numbers into
+      # appropriate ruby types.
+      def coerce(obj)
+        case obj
+        when Hash
+          Hash[obj.map { |k,v| [k.to_s,coerce(v)] }]
+        when Array
+          obj.map { |i| coerce(i) }
+        when 'true'
+          true
+        when 'false'
+          false
+        when 'nil',:nil,'undef',:undef
+          nil
+        when /\A\d+\z/
+          obj.to_i
+        when /\A\d+\.\d+\z/
+          obj.to_f
+        else
+          obj
+        end
+      end
+
+      # Make iterators of any hashes in the structure sort by key
+      def normalize(obj)
+
+        if obj.kind_of?(Hash)
+          unless obj.keys.all? { |k| k.kind_of? String }
+            raise Puppet::ParseError.new('keys of any hashes supplied ' << 
+                     'to predictable_pretty_json must be strings!')
+          end
+
+          def obj.each
+            keys.sort.map { |k| yield [k,self[k]] }
+          end
+
+          obj.values.each { |v| normalize(v) }
+
+        elsif obj.kind_of?(Array)
+          obj.each { |d| normalize(d) }
+        end
+      end
+
+    end
+
+    utils = utils_class.new
+
+    data = utils.coerce(data) if coerce
+
+    # pretty_generate only accepts hashes and arrays as arguments.
     unless data.kind_of?(Hash) || data.kind_of?(Array)
       next data.to_json
     end
 
-    normalize = lambda do |obj|
-      if obj.kind_of?(Hash)
-        unless obj.keys.all? { |k| k.kind_of? String }
-          raise Puppet::ParseError.new('keys of any hashes supplied to predictable_pretty_json must be strings!')
-        end
-        def obj.each
-          keys.sort.map { |k| yield [k,self[k]] }
-        end
-        obj.values.each { |v| normalize.call(v) }
-      elsif obj.kind_of?(Array)
-        obj.each { |d| normalize.call(d) }
-      end
-    end
+    utils.normalize(data)
 
-    normalize.call(data)
     JSON.pretty_generate(data)
   end
 end
