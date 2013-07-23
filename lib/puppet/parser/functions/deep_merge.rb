@@ -1,22 +1,18 @@
-# Helper class.
 class R9UtilDeepMerger
-  def initialize(array_merge = :index)
+  def initialize(array_merge = :none)
     @array_merge = (array_merge || :none).to_sym
   end
 
-  # Convert an array into a hash with indexes as keys.
   def hashify(array)
-    prepped = []
-    array.each_with_index { |e,i| prepped << [i,e] }
-    Hash[prepped]
+    indexed = []
+    array.each_with_index { |e,i| indexed << [i,e] }
+    Hash[indexed]
   end
 
-  # Convert hashified array back into an array (preserving elt. ordering)
   def unhashify(hash)
     hash.sort { |a,b| a.first <=> b.first }.map { |k,v| v }
   end
 
-  # Deep merge two items
   def deep_merge(a,b)
     if a.class == b.class && [Array,Hash].include?(a.class)
       a.is_a?(Hash) ? deep_merge_hashes(a,b) : deep_merge_arrays(a,b)
@@ -25,24 +21,33 @@ class R9UtilDeepMerger
     end
   end
 
-  # Merge arrays according to array merge style parameter
   def deep_merge_arrays(a,b)
     case @array_merge
     when :index
+      # Deep-merge the arrays as though they are hashes with indexes as keys
       unhashify(deep_merge_hashes(hashify(a),hashify(b)))
+
     when :union
+      # Union the two arrays
       a | b
+
     else
+      # Prefer the right-most argument
       b
     end
   end
 
-  # Merge hashes
   def deep_merge_hashes(a,b)
     a.merge(b) { |key,av,bv| deep_merge(av,bv) }
   end
 end
 
+# Deep-merge a JSON-style data structure consisting of nested hashes, arrays, and 
+# primitives. Supportes three kinds of array merges:
+#   - none: do not try to merge arrays, treat them like primitives
+#   - union: union the elements of the two arrays
+#   - index: merge the arrays as if they were hashes with indexes for keys (child
+#            elements will be deep-merged in this case)
 module Puppet::Parser::Functions
   newfunction(:deep_merge, :type => :rvalue) do |args|
     unless [2,3].include?(args.size)
