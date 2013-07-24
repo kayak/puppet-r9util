@@ -116,7 +116,7 @@ JSON
   end
 
   it 'should return a useful error message if JSON cannot be generated' do
-    JSON.stubs(:pretty_generate).with(['foo']).raises('Oh Noes!')
-    lambda { scope.function_predictable_pretty_json([['foo']]) }.should(raise_error(Puppet::Error,/\["foo"\]: Oh Noes!/))
+    Marshal.stubs(:dump).with(['foo']).returns(mock(:inspect => 'NONSENSE'))
+    lambda { scope.function_predictable_pretty_json([['foo']]) }.should(raise_error(Puppet::Error,/\["foo"\]: uninitialized constant NONSENSE/))
   end
 end

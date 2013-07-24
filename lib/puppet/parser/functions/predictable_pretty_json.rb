@@ -1,22 +1,17 @@
 require 'tempfile'
+require 'fileutils'
+
 require 'rubygems'
 require 'json'
 
-# The purpose of this function is to help render json data
+# The purpose of this function is to help render JSON data
 # containing hashes in a predictable fashion. Otherwise Puppet
 # can end up registering changes to JSON files when there
 # really aren't any (in Ruby 1.8.7).
 #
-# It works by forking and overriding the each function for Hash
-# to sort by key before yielding.
-#
-# Thus the keys of any hashes in the first argument must be strings,
-# or else the sort could fail.
-#
-# ====================================================================
-# N.B. This function will break if the pure_json module starts using a
-# function other than each for enumerating over hashes.
-# ====================================================================
+# This function is a hack, it's slow, and it will break if the JSON
+# gem starts using a function other than each for enumerating over
+# hashes. Use at your own risk.
 #
 module Puppet::Parser::Functions
   newfunction(:predictable_pretty_json,:type => :rvalue) do |args|
@@ -78,46 +73,49 @@ module Puppet::Parser::Functions
 
     utils.validate(data)
 
-    tmpfile = Tempfile.new('predictable_pretty_json')
-    tmpfile.close
+    scriptfile = Tempfile.new('predictable_pretty_json')
+    scriptfile.write <<SCRIPT
+#!/usr/bin/env ruby
 
-    # Fork to avoid contaminating anything else when we mess with
-    # Hash and JSON
-    pid = Process.fork do
-      [$stderr,$stdout].map {|io| io.reopen(tmpfile.path,'w')}
+json = nil
 
-      json = nil
+begin
+  require 'rubygems'
+  require 'json/pure'
 
-      begin
+  data = Marshal.load(#{Marshal.dump(data).inspect})
 
-        ::Hash.class_eval do
-          def each
-            keys.sort.each { |k| yield [k,self[k]] }
-          end
-        end
-
-        require 'json/pure'
-        JSON.generator = JSON::Pure::Generator
-
-        json = JSON.pretty_generate(data)
-
-      rescue Exception => e
-        print Marshal.dump(e)
-        Process.exit(1)
-      end
-
-      print json
+  class Hash
+    def each
+      keys.sort.each { |k| yield [k,self[k]] }
     end
+  end
 
-    pid,status = Process.wait2(pid)
+  json = JSON.pretty_generate(data)
 
-    output = begin; File.read(tmpfile.path); rescue; end
+rescue Exception => e
+  print Marshal.dump(e)
+  Process.exit(1)
+end
 
-    tmpfile.delete if File.exists?(tmpfile.path)
+print json
+SCRIPT
+    scriptfile.close
+
+    FileUtils.chmod(0755,scriptfile.path)
+    output = IO.popen("#{scriptfile.path} 2>&1") { |io| io.read }
+    status = $?
+
+    scriptfile.delete
 
     unless status.success?
       msg = "Failed to generate JSON from #{data.inspect}"
-      msg << ": #{Marshal.load(output)}" unless output.nil?
+
+      begin
+        msg << ": #{Marshal.load(output)}"
+      rescue StandardError
+      end
+
       fail(msg)
     end
 
