@@ -62,15 +62,23 @@ JSON
 
     data = [
             {
+              'z' => {
+                'aX' => 1,
+                'a0' => 1,
+                'ab' => 1,
+                'aZ' => 1,
+                'a9' => 1,
+                'ad' => 1,
+              },
               'a' => {
-                'c' => 1,
-                'd' => 1
+                'd' => 1,
+                'c' => 1
               },
               'b' => {
                 'e' => 1,
-                'f' => 1,
-                'g' => 1
-              }
+                'g' => 1,
+                'f' => 1
+              },
             },
             {
               'q' => 1,
@@ -88,6 +96,14 @@ JSON
       "e": 1,
       "f": 1,
       "g": 1
+    },
+    "z": {
+      "a0": 1,
+      "a9": 1,
+      "aX": 1,
+      "aZ": 1,
+      "ab": 1,
+      "ad": 1
     }
   },
   {
@@ -97,5 +113,10 @@ JSON
 ]
 JSON
     expect(expected.chomp,data)
+  end
+
+  it 'should return a useful error message if JSON cannot be generated' do
+    JSON.stubs(:pretty_generate).with(['foo']).raises('Oh Noes!')
+    lambda { scope.function_predictable_pretty_json([['foo']]) }.should(raise_error(Puppet::Error,/\["foo"\]: Oh Noes!/))
   end
 end
