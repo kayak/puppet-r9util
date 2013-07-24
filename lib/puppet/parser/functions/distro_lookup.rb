@@ -15,7 +15,7 @@
 # distro_lookup($package_names) -> 'oldpackage'
 #
 # CentOS 6.3 node:
-# distro_lookup($package_names) => 'newpackage'
+# distro_lookup($package_names) -> 'newpackage'
 #
 # Ubuntu 12.04 node:
 # distro_lookup($package_names) -> 'debpackage'
