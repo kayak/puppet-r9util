@@ -1,6 +1,43 @@
-# A generic system user. Eg. bamboo, puppet, etc.
+# A generic system user definition. Bundles user and group together
+# with some convenient other options.
 #
-# Simplest usage is:
+# === Parameters
+#
+# [title] The username for this user.
+#
+# [uid] Uid for this user. This parameter is not required, but setting
+#   it explicitly is strongly encouraged.
+#
+# [homedir] Path to user's home directory. Defaults to "/home/${title}".
+#
+# [shell] Login shell for this user. Defaults to "/sbin/nologin".
+#
+# [group] Name of the user's primary group. Defaults to $title. Will
+#   be declared with Puppet's group type.
+#
+# [groups] A list of any extra groups the user should belong to. Will
+#   not be declared. Defaults to []
+#
+# [gid] Gid for this user's primary group. Defaults to $uid
+#
+# [passwd] Password hash for this user. Defaults to "!"
+#
+# [bindir] A hash of options configuring a directory of scripts that
+#   should be copied to $homedir/bin. Default does nothing.
+#
+# [auth_keys] A hash of ssh authorized key resource definitions that
+#   should be set for this user. Defaults to {}.
+#
+# [managehome] Whether Puppet should manage $homedir. Defaults to true.
+#
+# [ensure] Valid values are present, absent. Defaults to present. When
+#   set to absent, the user, group, and any related resources will be
+#   removed.
+#
+#
+# === Examples
+#
+# Simplest usage:
 #
 # r9util::system_user { 'bamboo':
 #   uid => '476'
@@ -18,7 +55,7 @@
 # r9util::system_user { 'bamboo':
 #   uid    => '476',
 #   bindir => {
-#     'source' => 'puppet://modules/bamboo/bin'
+#     'source' => 'puppet://modules/bamboo/bin',
 #     'purge'  => 'true'
 #   }
 # }
@@ -28,25 +65,24 @@
 # r9util::system_user { 'bamboo':
 #   uid       => '476',
 #   auth_keys => {
-#      'root-for-bamboo' => { 'key' => 'AAAAB3Nz<...snip...>' },
+#      'root-for-bamboo' => { 'key' => 'AAAAB3Nz...' },
 #   }
 # }
 #
-#
 define r9util::system_user(
-  $uid        = undef,       # uid for this user
-  $homedir    = "/home/${title}", # home directory - default is "/home/${user}"
-  $shell      = '/sbin/nologin', # login shell
-  $group      = $title,      # name of user's primary group
-  $groups     = [],          # any extra groups this user should belong to
-  $gid        = undef,       # gid for this user's primary group
-  $passwd     = '!',         # password hash
-  $bindir     = {            # scripts to copy to $homedir/bin
-    source => undef,         #   puppet url pointing to scripts
+  $uid        = undef,
+  $homedir    = "/home/${title}",
+  $shell      = '/sbin/nologin',
+  $group      = $title,
+  $groups     = [],
+  $gid        = undef,
+  $passwd     = '!',
+  $bindir     = {
+    source => undef,
     purge  => false,
   },
-  $auth_keys  = {},          # ssh authorized keys for this user
-  $managehome = true,        # whether to create home dir
+  $auth_keys  = {},
+  $managehome = true,
   $ensure     = present,
 ){
 

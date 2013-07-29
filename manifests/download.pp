@@ -1,3 +1,26 @@
+#
+# Download a file from a URL (using curl).
+#
+# === Parameters
+#
+# [url] URL to download from. Defaults to $title.
+#
+# [path] Where to download file to. Should be path to a file, not
+#   a directory. Defaults to "/root/${basename($url)}". If a file at
+#   $path already exists, it the file will not be downloaded.
+#
+# [timeout] Seconds to wait before making curl timeout. Defaults to
+#   300.
+#
+# === Examples
+#
+# r9util::download { 'download-foo':
+#   url  => 'http://www.example.com/myfile.tar.gz',
+#   path => '/tmp/myfile.tar.gz',
+# }
+#
+# will download http://www.example.com/myfile.tar.gz to /tmp
+#
 define r9util::download(
   $url     = $title,
   $path    = undef,
