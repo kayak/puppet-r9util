@@ -20,7 +20,7 @@
 #
 # [gid] Gid for this user's primary group. Defaults to $uid
 #
-# [passwd] Password hash for this user. Defaults to "!"
+# [password] Password hash for this user. Defaults to "!"
 #
 # [bindir] A hash of options configuring a directory of scripts that
 #   should be copied to $homedir/bin. Default does nothing.
@@ -76,7 +76,7 @@ define r9util::system_user(
   $group      = $title,
   $groups     = [],
   $gid        = undef,
-  $passwd     = '!',
+  $password   = '!',
   $bindir     = {
     source => undef,
     purge  => false,
@@ -96,7 +96,7 @@ define r9util::system_user(
     comment    => $title,
     gid        => $group,
     groups     => $groups,
-    password   => $passwd,
+    password   => $password,
     shell      => $shell,
     system     => true,
     uid        => $uid,
