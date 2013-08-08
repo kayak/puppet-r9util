@@ -1,5 +1,9 @@
 require 'spec_helper'
 
+require 'stringio'
+require 'rubygems'
+require 'json'
+
 describe 'the predictable_pretty_json function' do
   let(:scope) { PuppetlabsSpec::PuppetInternals.scope }
 
@@ -116,7 +120,13 @@ JSON
   end
 
   it 'should return a useful error message if JSON cannot be generated' do
-    Marshal.stubs(:dump).with(['foo']).returns(mock(:inspect => 'NONSENSE'))
-    lambda { scope.function_predictable_pretty_json([['foo']]) }.should(raise_error(Puppet::Error,/\["foo"\]: uninitialized constant NONSENSE/))
+    input,output,error = StringIO.new,StringIO.new,StringIO.new('foobar')
+
+    Open3.expects(:popen3).with('/usr/bin/env ruby').yields(input,output,error)
+
+    system('/bin/false') # Ensure that $?.success? returns false.
+
+    lambda { scope.function_predictable_pretty_json([['foo']]) }.
+      should(raise_error(Puppet::Error,/\["foo"\]: foobar/))
   end
 end

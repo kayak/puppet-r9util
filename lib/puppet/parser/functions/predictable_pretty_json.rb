@@ -1,17 +1,12 @@
-require 'tempfile'
-require 'fileutils'
-
-require 'rubygems'
-require 'json'
+require 'open3'
 
 # The purpose of this function is to help render JSON data
 # containing hashes in a predictable fashion. Otherwise Puppet
 # can end up registering changes to JSON files when there
 # really aren't any (in Ruby 1.8.7).
 #
-# This function is a hack, it's slow, and it will break if the JSON
-# gem starts using a function other than each for enumerating over
-# hashes. Use at your own risk.
+# This function is slow and depends on internals of the JSON gem,
+# use at your own risk.
 #
 module Puppet::Parser::Functions
   newfunction(:predictable_pretty_json,:type => :rvalue) do |args|
@@ -52,8 +47,8 @@ module Puppet::Parser::Functions
         case obj
         when Hash
           unless obj.keys.all? { |k| k.is_a? String }
-            raise Puppet::ParseError.new 'keys of any '     <<
-              'hashes supplied to predictable_pretty_json ' << 
+            raise Puppet::ParseError.new 'keys of any '   <<
+              'hashes passed to predictable_pretty_json ' << 
               'must be strings!'
           end
           obj.values.each { |v| validate(v) }
@@ -73,12 +68,7 @@ module Puppet::Parser::Functions
 
     utils.validate(data)
 
-    scriptfile = Tempfile.new('predictable_pretty_json')
-    scriptfile.write <<SCRIPT
-#!/usr/bin/env ruby
-
-json = nil
-
+    render_script = <<SCRIPT
 begin
   require 'rubygems'
   require 'json/pure'
@@ -91,34 +81,26 @@ begin
     end
   end
 
-  json = JSON.pretty_generate(data)
-
+  print JSON.pretty_generate(data)
 rescue Exception => e
-  print Marshal.dump(e)
-  Process.exit(1)
+  $stderr.print e.class << ' ' << e.message
 end
-
-print json
+EOF
 SCRIPT
-    scriptfile.close
 
-    FileUtils.chmod(0755,scriptfile.path)
-    output = IO.popen("#{scriptfile.path} 2>&1") { |io| io.read }
-    status = $?
+    json,error = nil,nil
 
-    scriptfile.delete
-
-    unless status.success?
-      msg = "Failed to generate JSON from #{data.inspect}"
-
-      begin
-        msg << ": #{Marshal.load(output)}"
-      rescue StandardError
-      end
-
-      fail(msg)
+    Open3.popen3('/usr/bin/env ruby') do |stdin,stdout,stderr|
+      stdin.write(render_script)
+      stdin.close
+      json = stdout.read
+      error = stderr.read
     end
 
-    output
+    unless $?.success?
+      raise Puppet::ParseError.new "Failed to generate JSON from #{data.inspect}: #{error}"
+    end
+
+    json
   end
 end
