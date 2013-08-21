@@ -6,7 +6,7 @@
 # when you really want
 #   foo=don't cry
 #
-# So this is my attempt to work around that limitation, without
+# So this is an attempt to work around that limitation, without
 # requiring users to quote any/all properties with whitespace in them.
 module Puppet::Parser::Functions
   newfunction(:quote_properties, :type => :rvalue) do |args|
