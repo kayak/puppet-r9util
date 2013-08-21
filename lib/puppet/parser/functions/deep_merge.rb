@@ -1,5 +1,5 @@
 #
-# Deep-merge a JSON-style data structure consisting of nested hashes,
+# deep_merge - Deep-merge a JSON-style data structure consisting of nested hashes,
 # arrays, and primitives. 
 #
 # Supports three kinds of array merges:
@@ -8,6 +8,29 @@
 #   - index: merge the arrays as if they were hashes with indexes for
 #     keys (child elements will be deep-merged)
 #
+# Example:
+#
+# $a = {
+#   'foo' => [{'a' => 'b'}, {'c' => 'd'}]
+# }
+# $b = {
+#   'foo' => [{'z' => 'x'}, {'c' => 'd'}]
+# }
+#
+# deep_merge($a,$b,'none') =>
+# {
+#   'foo' => [{'z' => 'x'},{'c' => 'd'}],
+# }
+#
+# deep_merge($a,$b,'union') =>
+# {
+#   'foo' => [{'a' => 'b'},{'c' => 'd'},{'z' => 'x'}]
+# }
+#
+# deep_merge($a,$b,'index') =>
+# {
+#   'foo' => [{'a' => 'b','z' => 'x'},{'c'=>'d'}]
+# }
 module Puppet::Parser::Functions
   newfunction(:deep_merge, :type => :rvalue) do |args|
     unless [2,3].include?(args.size)
