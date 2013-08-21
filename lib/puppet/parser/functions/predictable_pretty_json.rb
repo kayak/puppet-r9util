@@ -28,7 +28,7 @@ require 'open3'
 # }'
 # 
 # predictable_pretty_json($data,true) =>
-# ' {
+# '{
 #    "foo": {
 #      "a": 1,
 #      "z": 2
