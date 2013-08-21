@@ -15,7 +15,7 @@ This lens was grabbed from
   https://raw.github.com/estahn/augeas/master/lenses/properties.aug
 
 It's newer that what's available with the Augeas package for most
-distributions. I've renamed it from Properties to CD_Properties.
+distributions.
 *)
 
 
