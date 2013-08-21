@@ -1,12 +1,39 @@
 require 'open3'
 
-# The purpose of this function is to help render JSON data
-# containing hashes in a predictable fashion. Otherwise Puppet
-# can end up registering changes to JSON files when there
-# really aren't any (in Ruby 1.8.7).
+# predictable_pretty_json - render JSON data containing hashes in a predictable
+# fashion, by sorting hashes by key first.
 #
-# This function is slow and depends on internals of the JSON gem,
-# use at your own risk.
+# On Ruby 1.8.7, puppet sometimes registers changes to JSON files when there
+# aren't any changes to the data structure. This function is a fix for that 
+# behavior -- JSON for the same data structure will render the same every time.
+#
+# The function also takes a second parameter, coerce, that when true will 
+# convert strings that look like numbers, booleans, or null, into the 
+# appropriate Ruby types before rendering the JSON. Defaults to false.
+#
+# N.B. This function is slow and depends on internals of the JSON gem
+#
+# Example:
+#
+# $data = {
+#   'foo' => { 'a' => '1', 'z' => '2' }
+# }
+#
+# predictable_pretty_json($data) =>
+# '{
+#   "foo": {
+#     "a": "1",
+#     "z": "2"
+#   }
+# }'
+# 
+# predictable_pretty_json($data,true) =>
+# ' {
+#   "foo": {
+#     "a": 1,
+#     "z": 2
+#   }
+# }'
 #
 module Puppet::Parser::Functions
   newfunction(:predictable_pretty_json,:type => :rvalue) do |args|
