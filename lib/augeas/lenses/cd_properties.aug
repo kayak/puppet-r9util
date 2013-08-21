@@ -7,6 +7,15 @@
    - multi-line properties are broken down by line, and can't be replaced with a single line
 
   See format info: http://docs.oracle.com/javase/6/docs/api/java/util/Properties.html#load(java.io.Reader)
+
+Note:
+
+This lens was grabbed from 
+
+  https://raw.github.com/estahn/augeas/master/lenses/properties.aug
+
+It's newer that what's available with the Augeas package for most
+distributions. I've renamed it from Properties to CD_Properties.
 *)
 
 
