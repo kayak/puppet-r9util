@@ -3,7 +3,7 @@ require 'open3'
 # predictable_pretty_json - render JSON data containing hashes in a predictable
 # fashion, by sorting hashes by key first.
 #
-# On Ruby 1.8.7, puppet sometimes registers changes to JSON files when there
+# On Ruby 1.8.7, Puppet sometimes registers changes to JSON files when there
 # aren't any changes to the data structure. This function is a fix for that 
 # behavior -- JSON for the same data structure will render the same every time.
 #
