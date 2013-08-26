@@ -16,7 +16,7 @@
 # ensure_supported($supported) => Error: "operating system CentOS
 #             version 4.3 is not supported by this manifest"
 # 
-# CentOS 4.3 node with  -- warn instead of raising an error.
+# CentOS 4.3 node with warn parameter set to true
 # ensure_supported($supported,true) => false
 #
 module Puppet::Parser::Functions
