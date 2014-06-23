@@ -46,4 +46,36 @@ describe 'r9util::download' do
       })
     end
   end
+
+  context('with md5sum parameter') do
+    @md5sum = '0fee8043ecd6e382f8abcee023f24ecd'
+
+    let(:title){ 'title' }
+    let(:facts){ { 'r9util_download_curl_version' => '7.0.0' } }
+    let(:params) do
+      { 
+        :url     => 'a.com/file',
+        :path    => '/tmp/foo',
+        :timeout => 30,
+        :md5sum  => '0fee8043ecd6e382f8abcee023f24ecd',
+      }
+    end
+
+    it 'should try to download the file' do
+      check = "echo '0fee8043ecd6e382f8abcee023f24ecd  /tmp/foo' | md5sum --check"
+
+      should contain_exec('r9util-download-title').with({
+        :path => ['/bin', '/usr/bin'],
+        :command => 'curl -L --create-dirs -m 30 "a.com/file" -o "/tmp/foo"',
+        :unless  => check,
+      })
+
+      should contain_exec('r9util-download-title-md5check').with({
+        :path        => ['/bin', '/usr/bin'],
+        :command     => check,
+        :refreshonly => true,
+      })
+    end
+    
+  end
 end

@@ -12,6 +12,8 @@
 # [timeout] Seconds to wait before making curl timeout. Defaults to
 #   300.
 #
+# [md5sum] md5sum to verify. No md5sum check is performed.
+#
 # === Examples
 #
 # r9util::download { 'download-foo':
@@ -23,8 +25,9 @@
 #
 define r9util::download(
   $url     = $title,
-  $path    = undef,
   $timeout = 300,
+  $path    = undef,
+  $md5sum  = undef,
 ){
 
   if $::r9util_download_curl_version == undef {
@@ -41,9 +44,24 @@ define r9util::download(
   $args = "-L --create-dirs -m ${timeout}"
 
   exec { "r9util-download-${title}":
-    path    => ['/bin','/usr/bin'],
+    path    => ['/bin', '/usr/bin'],
     command => "curl ${args} \"${url}\" -o \"${_path}\"",
-    creates => $_path,
   }
 
+  if $md5sum == undef {
+
+    Exec["r9util-download-${title}"] { creates => $_path }
+
+  } else {
+    $md5check = "echo '${md5sum}  ${path}' | md5sum --check"
+
+    Exec["r9util-download-${title}"] { unless => $md5check }
+
+    exec { "r9util-download-${title}-md5check":
+      path        => ['/bin', '/usr/bin'],
+      command     => $md5check,
+      refreshonly => true,
+      subscribe   => Exec["r9util-download-${title}"],
+    }
+  }
 }
