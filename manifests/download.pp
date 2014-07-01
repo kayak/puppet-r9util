@@ -1,5 +1,5 @@
 #
-# Download a file from a URL (using curl).
+# Download a file from a URL (using wget).
 #
 # === Parameters
 #
@@ -9,7 +9,7 @@
 #   a directory. Defaults to "/root/${basename($url)}". If a file at
 #   $path already exists, it the file will not be downloaded.
 #
-# [timeout] Seconds to wait before making curl timeout. Defaults to
+# [timeout] Seconds to wait before making wget timeout. Defaults to
 #   300.
 #
 # [md5sum] md5sum to verify. No md5sum check is performed.
@@ -30,8 +30,8 @@ define r9util::download(
   $md5sum  = undef,
 ){
 
-  if $::r9util_download_curl_version == undef {
-    fail("curl is required to download ${url}")
+  unless defined(Package['wget']) {
+    package { 'wget': }
   }
 
   if $path == undef {
@@ -41,11 +41,11 @@ define r9util::download(
     $_path = $path
   }
 
-  $args = "-L --create-dirs -m ${timeout}"
+  $args = ['-T', $timeout, '-O', $_path]
 
   exec { "r9util-download-${title}":
     path    => ['/bin', '/usr/bin'],
-    command => "curl ${args} \"${url}\" -o \"${_path}\"",
+    command => shellquote('wget', $args, $url),
   }
 
   if $md5sum == undef {
@@ -53,7 +53,8 @@ define r9util::download(
     Exec["r9util-download-${title}"] { creates => $_path }
 
   } else {
-    $md5check = "echo '${md5sum}  ${path}' | md5sum --check"
+    $md5check_input = shellquote("${md5sum}  ${path}")
+    $md5check = "echo ${md5check_input} | md5sum --check"
 
     Exec["r9util-download-${title}"] { unless => $md5check }
 

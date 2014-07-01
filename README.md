@@ -13,7 +13,7 @@ Set properties in Java properties files with augeas. Uses Craig Dunn's Propertie
 
 ### r9util::download
 
-Download a file with curl.
+Download a file with wget.
 
 ### r9util::system_user
 
