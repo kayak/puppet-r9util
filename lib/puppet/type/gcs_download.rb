@@ -1,6 +1,6 @@
 require 'puppet/parameter/boolean'
 
-Puppet::Type.newtype(:gcs_download, :self_refresh => true) do
+Puppet::Type.newtype(:gcs_download) do
 
   @doc = <<-EOF
   Download a file from Google Cloud Storage.
@@ -35,7 +35,7 @@ Puppet::Type.newtype(:gcs_download, :self_refresh => true) do
   newparam(:always_check_md5,
            :boolean => true,
            :parent => Puppet::Parameter::Boolean) do
-    desc 'When true, the md5sum of the remote file will be fetched and compared with the local, downloaded copy. By default this check is only performed when the resource is refreshed, or its parameters change. Results in a call to the Google Cloud Storage API during every Puppet run on the node.'
+    desc 'When true, the md5sum of the remote file will be fetched and compared with the local, downloaded copy. By default this check is only performed when the resource is refreshed. Results in a call to the Google Cloud Storage API during every Puppet run on the node.'
 
     defaultto { :false }
   end
