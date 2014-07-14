@@ -19,11 +19,11 @@ Download a file with wget.
 
 Bundles Puppet's user and group types together for convenience.
 
-### r9util::gcs_download
+### gcs_download
 
 Can be used to download files from Google Cloud Storage. For example:
 
-    r9util::gcs_download { '/where/to/download/the.file':
+    gcs_download { '/where/to/download/the.file':
       bucket      => 'bucket',
       remote_path => 'path/within/bucket/to/the.file'
     }
