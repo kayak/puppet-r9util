@@ -86,7 +86,7 @@ define r9util::system_user(
   $ensure     = present,
 ){
 
-  if $managehome && $::osfamily == 'Darwin' {
+  if ($managehome) and ($::osfamily == 'Darwin') {
     $real_managehome = false
   }
   else {
