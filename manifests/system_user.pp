@@ -86,61 +86,70 @@ define r9util::system_user(
   $ensure     = present,
 ){
 
+  if $managehome && $::osfamily == 'Darwin' {
+    $real_managehome = false
+  }
+  else {
+    $real_managehome = $managehome
+  }
+
   $user = $title
 
-  user { $user:
-    ensure     => $ensure,
-    allowdupe  => false,
-    home       => $homedir,
-    managehome => $managehome,
-    comment    => $title,
-    gid        => $group,
-    groups     => $groups,
-    password   => $password,
-    shell      => $shell,
-    system     => true,
-    uid        => $uid,
+  user {
+    $user:
+      ensure     => $ensure,
+      allowdupe  => false,
+      home       => $homedir,
+      managehome => $real_managehome,
+      comment    => $title,
+      gid        => $group,
+      groups     => $groups,
+      password   => $password,
+      shell      => $shell,
+      system     => true,
+      uid        => $uid;
   }
 
   $gid_param = $gid ? {
-    undef => $uid,
+    undef   => $uid,
     default => $gid,
   }
 
-  group { $group:
-    ensure    => $ensure,
-    allowdupe => false,
-    gid       => $gid_param,
-    system    => true,
+  group {
+    $group:
+      ensure    => $ensure,
+      allowdupe => false,
+      gid       => $gid_param,
+      system    => true;
   }
 
   if $ensure == 'absent' {
     User[$user] -> Group[$group]
-  }else{
 
-    if $managehome {
+  }
+  else {
+    if $real_managehome {
 
       $ssh_authkey_defaults = {
         user    => $user,
         type    => 'ssh-rsa',
       }
 
-      create_resources('ssh_authorized_key',$auth_keys,$ssh_authkey_defaults)
+      create_resources('ssh_authorized_key', $auth_keys,$ssh_authkey_defaults)
 
       if $bindir['source'] != undef {
 
-        file { "${homedir}/bin":
-          ensure  => directory,
-          recurse => true,
-          purge   => $bindir['purge'],
-          source  => $bindir['source'],
-          group   => $group,
-          owner   => $user,
-          mode    => '0755',
+        file {
+          "${homedir}/bin":
+            ensure  => directory,
+            recurse => true,
+            purge   => $bindir['purge'],
+            source  => $bindir['source'],
+            group   => $group,
+            owner   => $user,
+            mode    => '0755';
         }
       }
-
     }
   }
-
 }
