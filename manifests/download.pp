@@ -30,9 +30,7 @@ define r9util::download(
   $md5sum  = undef,
 ){
 
-  unless defined(Package['wget']) {
-    package { 'wget': }
-  }
+  ensure_packages(['wget'])
 
   if $path == undef {
     $base = basename($url)
