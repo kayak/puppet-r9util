@@ -1,10 +1,10 @@
 name    'kayak-r9util'
-version '0.0.6'
-source  'git://github.com/kayak/r9util.git'
+version '0.0.8'
+source  'git://github.com/kayak/puppet-r9util.git'
 author  'kayak'
 license 'Apache License, Version 2.0'
 summary 'Misc utilities'
 description 'Misc utilities used in KAYAK Puppet modules'
-project_page 'https://github.com/kayakco/r9util'
+project_page 'https://github.com/kayak/puppet-r9util'
 
 dependency 'puppetlabs/stdlib', '>= 3.2.0'
