@@ -1,6 +1,6 @@
 name    'kayak-r9util'
-version '0.0.5'
-source  'git://github.com/kayakco/r9util.git'
+version '0.0.6'
+source  'git://github.com/kayak/r9util.git'
 author  'kayak'
 license 'Apache License, Version 2.0'
 summary 'Misc utilities'
