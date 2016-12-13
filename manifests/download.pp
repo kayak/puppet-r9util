@@ -25,7 +25,7 @@
 #
 define r9util::download(
   $url     = $title,
-  $timeout = 300,
+  $timeout = '300',
   $path    = undef,
   $md5sum  = undef,
 ){
