@@ -1,15 +1,15 @@
 require 'spec_helper'
 
-describe 'the deep_merge function' do
+describe 'the r9deep_merge function' do
 
   let(:scope) { PuppetlabsSpec::PuppetInternals.scope }
 
   def expect_parse_error(argument)
-    lambda { scope.function_deep_merge(argument) }.should(raise_error(Puppet::ParseError))
+    lambda { scope.function_r9deep_merge(argument) }.should(raise_error(Puppet::ParseError))
   end
 
   def expect_deep_merge(expected,args)
-    scope.function_deep_merge(args).should == expected
+    scope.function_r9deep_merge(args).should == expected
   end
 
   it 'should raise a ParseError if the number of arguments is not 2 or 3' do

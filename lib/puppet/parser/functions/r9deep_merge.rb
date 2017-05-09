@@ -1,6 +1,6 @@
 #
-# deep_merge - Deep-merge a JSON-style data structure consisting of nested hashes,
-# arrays, and primitives. 
+# r9deep_merge - Deep-merge a JSON-style data structure consisting of nested hashes,
+# arrays, and primitives.
 #
 # Supports three kinds of array merges:
 #   - none: do not try to merge arrays, treat them like primitives
@@ -17,24 +17,24 @@
 #   'foo' => [{'z' => 'x'}, {'c' => 'd'}]
 # }
 #
-# deep_merge($a,$b,'none') =>
+# r9deep_merge($a,$b,'none') =>
 # {
 #   'foo' => [{'z' => 'x'},{'c' => 'd'}],
 # }
 #
-# deep_merge($a,$b,'union') =>
+# r9deep_merge($a,$b,'union') =>
 # {
 #   'foo' => [{'a' => 'b'},{'c' => 'd'},{'z' => 'x'}]
 # }
 #
-# deep_merge($a,$b,'index') =>
+# r9deep_merge($a,$b,'index') =>
 # {
 #   'foo' => [{'a' => 'b','z' => 'x'},{'c'=>'d'}]
 # }
 module Puppet::Parser::Functions
-  newfunction(:deep_merge, :type => :rvalue) do |args|
+  newfunction(:r9deep_merge, :type => :rvalue) do |args|
     unless [2,3].include?(args.size)
-      raise Puppet::ParseError.new('deep_merge expects 2-3 arguments')
+      raise Puppet::ParseError.new('r9deep_merge expects 2-3 arguments')
     end
 
     merger_class = Class.new do
@@ -52,22 +52,22 @@ module Puppet::Parser::Functions
         hash.sort { |a,b| a.first <=> b.first }.map { |k,v| v }
       end
 
-      def deep_merge(a,b)
+      def r9deep_merge(a,b)
         if a.class == b.class && [Array,Hash].include?(a.class)
           a.is_a?(Hash) ?
-            deep_merge_hashes(a,b) :
-            deep_merge_arrays(a,b)
+            r9deep_merge_hashes(a,b) :
+            r9deep_merge_arrays(a,b)
         else
           b
         end
       end
 
-      def deep_merge_arrays(a,b)
+      def r9deep_merge_arrays(a,b)
         case @array_merge
         when :index
           # Deep-merge the arrays as though they are hashes with
           # indexes as keys
-          unhashify(deep_merge_hashes(hashify(a),hashify(b)))
+          unhashify(r9deep_merge_hashes(hashify(a),hashify(b)))
 
         when :union
           # Union the two arrays
@@ -78,15 +78,15 @@ module Puppet::Parser::Functions
           b
         end
       end
-      
-      def deep_merge_hashes(a,b)
-        a.merge(b) { |key,av,bv| deep_merge(av,bv) }
+
+      def r9deep_merge_hashes(a,b)
+        a.merge(b) { |key,av,bv| r9deep_merge(av,bv) }
       end
 
     end
 
     a,b = args[0..1]
     merger = merger_class.new(args[2])
-    merger.deep_merge(a,b)
+    merger.r9deep_merge(a,b)
   end
 end

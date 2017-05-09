@@ -1,15 +1,15 @@
 require 'spec_helper'
 
-describe 'the basename function' do
+describe 'the r9basename function' do
 
   let(:scope) { PuppetlabsSpec::PuppetInternals.scope }
 
   def expect_parse_error(argument)
-    lambda { scope.function_basename(argument) }.should(raise_error(Puppet::ParseError))
+    lambda { scope.function_r9basename(argument) }.should(raise_error(Puppet::ParseError))
   end
 
   def expect_basename(expected,args)
-    scope.function_basename(args).should == expected
+    scope.function_r9basename(args).should == expected
   end
 
   it 'should raise a ParseError if the number of arguments is not 1 or 2' do

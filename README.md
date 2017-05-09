@@ -30,7 +30,7 @@ Can be used to download files from Google Cloud Storage. For example:
 
 ## Functions
 
-### deep_merge
+### r9deep_merge
 
 Deep merging of data structures consisting of nested hashes and arrays. Offers several types of array merges.
 
