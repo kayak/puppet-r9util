@@ -39,7 +39,7 @@ define r9util::download(
     $_path = $path
   }
 
-  $args = ['-T', $timeout, '-O', $_path]
+  $args = ['-T', "$timeout", '-O', $_path]
 
   exec { "r9util-download-${title}":
     path    => ['/bin', '/usr/bin'],

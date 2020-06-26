@@ -1,0 +1,28 @@
+{
+  "name": "kayak-r9util",
+  "version": "0.0.11",
+  "author": "Kayak",
+  "summary": "Misc utilities",
+  "license": "Apache-2.0",
+  "source": "ssh://git@git.runwaynine.com:7999/op/github-r9util.git",
+  "project_page": "https://git.runwaynine.com/projects/OP/repos/github-r9util/browse",
+  "dependencies": [
+    { "name": "puppetlabs/stdlib", "version_requirement": ">= 3.2.0" }
+  ],
+  "data_provider": "hiera",
+  "operatingsystem_support": [
+    {
+      "operatingsystem": "CentOS",
+      "operatingsystemrelease": [
+        "7"
+      ]
+    }
+  ],
+  "requirements": [
+    {
+      "name": "puppet",
+      "version_requirement": ">= 5.0.0 < 6.0.0"
+    }
+  ],
+  "description": "Misc utilities used in KAYAK Puppet modules"
+}
