@@ -62,7 +62,7 @@ GEM
     rspec-support (3.9.3)
     safe_yaml (1.0.5)
     semantic_puppet (1.0.4)
-    thor (1.1.0)
+    thor (1.4.0)
     webmock (3.8.3)
       addressable (>= 2.3.6)
       crack (>= 0.3.2)
